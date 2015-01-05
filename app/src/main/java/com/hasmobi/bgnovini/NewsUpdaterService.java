@@ -1,14 +1,10 @@
 package com.hasmobi.bgnovini;
 
 import android.app.IntentService;
-import android.app.Notification;
-import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.Html;
 import android.util.Log;
-import android.util.TimeUtils;
 
 import com.hasmobi.bgnovini.models.FavoriteSource;
 import com.hasmobi.bgnovini.models.NewsArticle;
@@ -19,17 +15,10 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.xml.sax.SAXException;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.Time;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -50,34 +39,11 @@ public class NewsUpdaterService extends IntentService {
 	protected void onHandleIntent(Intent intent) {
 		Log.d(getClass().getSimpleName(), "Starting RSS updater");
 
-		showNotification();
-
-		deleteOldJunk();
-
-		ParseQuery<NewsArticle> pQueryExists = ParseQuery.getQuery(NewsArticle.class);
-		pQueryExists.fromLocalDatastore();
-		int existingItemsCount = 0;
-		try {
-			existingItemsCount = pQueryExists.count();
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-
-		boolean forceUpdateNow = intent.getBooleanExtra("force", false);
-
-		long lastUpdateTimestamp = getSharedPreferences("updates", MODE_PRIVATE).getLong("last_update", -1);
-
-		long nextScheduledUpdate = lastUpdateTimestamp + TimeUnit.HOURS.toMillis(6);
-		if (nextScheduledUpdate > System.currentTimeMillis() && existingItemsCount > 0 && !forceUpdateNow) {
-			// Last update newer than 6 hours, don't update yet
-			Calendar c = Calendar.getInstance();
-			c.setTimeInMillis(nextScheduledUpdate);
-
-			Log.d(getClass().getSimpleName(), "No need to update yet. Next scheduled update at: " + c.getTime().toString());
-			return;
-		}
+		showNotificationDuringUpdating();
 
 		final long msAtStart = System.currentTimeMillis();
+
+		deleteOldJunk();
 
 		final ParseQuery<FavoriteSource> qFavoriteSources = ParseQuery.getQuery(FavoriteSource.class);
 		qFavoriteSources.whereEqualTo("owner", ParseUser.getCurrentUser());
@@ -183,11 +149,11 @@ public class NewsUpdaterService extends IntentService {
 		super.onDestroy();
 	}
 
-	private void showNotification() {
+	private void showNotificationDuringUpdating() {
 		NotificationCompat.Builder mBuilder =
 				new NotificationCompat.Builder(this)
 						.setSmallIcon(R.drawable.ic_launcher)
-						.setContentTitle("Updating news");
+						.setContentTitle(getResources().getString(R.string.updating_news));
 		mBuilder.setOngoing(true).setProgress(100, 0, true);
 		startForeground(1, mBuilder.build());
 	}

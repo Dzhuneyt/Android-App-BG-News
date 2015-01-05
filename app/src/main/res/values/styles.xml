@@ -6,15 +6,18 @@
     </style>
 
     <style name="newsArticleTitle">
-        <item name="android:textSize">30sp</item>
+        <item name="android:padding">20dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textSize">25sp</item>
         <item name="android:background">#96ffffff</item>
-        <item name="android:textColor">#ff646464</item>
+        <item name="android:textColor">#ff373737</item>
     </style>
 
     <style name="newsArticleBody">
-        <item name="android:textSize">25sp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:background">#ff555555</item>
         <item name="android:textColor">#fff</item>
+        <item name="android:padding">5dp</item>
     </style>
 
 </resources>

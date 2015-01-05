@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.hasmobi.bgnovini.models.FavoriteSource;
 import com.hasmobi.bgnovini.models.NewsArticle;
@@ -33,7 +34,7 @@ public class FragmentSources extends Fragment {
 	}
 
 	@Override
-	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+	public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
 		final Button bContinue = (Button) view.findViewById(R.id.bContinue);
@@ -43,9 +44,7 @@ public class FragmentSources extends Fragment {
 		bContinue.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				getActivity().getSupportFragmentManager().beginTransaction()
-						.replace(R.id.container, new FragmentNews())
-						.commit();
+
 
 				// Delete cached news items from sources we do not have in favorites anymore
 				ParseQuery<FavoriteSource> qNewFavorites = ParseQuery.getQuery(FavoriteSource.class);
@@ -74,12 +73,20 @@ public class FragmentSources extends Fragment {
 								});
 							}
 						});
+
+						if (list.size() > 0) {
+							getActivity().getSupportFragmentManager().beginTransaction()
+									.replace(R.id.container, new FragmentNews())
+									.commit();
+						} else {
+							Toast.makeText(getActivity(), getResources().getString(R.string.choose_any_source), Toast.LENGTH_SHORT).show();
+						}
 					}
 				});
 			}
 		});
 
-		ParseQuery<Source> qSources = ParseQuery.getQuery(Source.class);
+		final ParseQuery<Source> qSources = ParseQuery.getQuery(Source.class);
 		qSources.addAscendingOrder("name");
 		qSources.findInBackground(new FindCallback<Source>() {
 			@Override
@@ -89,10 +96,25 @@ public class FragmentSources extends Fragment {
 					return;
 				}
 
-				Log.d(getClass().toString(), "Received " + sources.size());
-				SourcesAdapter adapter = new SourcesAdapter(getActivity().getBaseContext(), sources);
+				if (sources.size() == 0) {
+					qSources.fromLocalDatastore();
+					qSources.findInBackground(new FindCallback<Source>() {
+						@Override
+						public void done(List<Source> sources, ParseException e) {
+							Log.d(getClass().toString(), "Received " + sources.size());
+							SourcesAdapter adapter = new SourcesAdapter(getActivity().getBaseContext(), sources);
 
-				listView.setAdapter(adapter);
+							listView.setAdapter(adapter);
+						}
+					});
+				} else {
+					Log.d(getClass().toString(), "Received " + sources.size());
+					SourcesAdapter adapter = new SourcesAdapter(view.getContext(), sources);
+
+					listView.setAdapter(adapter);
+				}
+
+
 			}
 		});
 	}

@@ -5,9 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,6 +21,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.hasmobi.bgnovini.models.NewsArticle;
+import com.hasmobi.bgnovini.util.App;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 import com.parse.CountCallback;
@@ -31,6 +34,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class FragmentNews extends Fragment {
+
+	private SwipeRefreshLayout mSwipeRefreshLayout;
 
 	private BroadcastReceiver brRefreshNewsFromCache = new BroadcastReceiver() {
 		@Override
@@ -92,26 +97,39 @@ public class FragmentNews extends Fragment {
 	}
 
 	@Override
-	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+	public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+
+		mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.srl);
+
+		mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+			@Override
+			public void onRefresh() {
+				Toast.makeText(getActivity(), getResources().getString(R.string.updating_news), Toast.LENGTH_SHORT).show();
+				new Handler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						getActivity().getSharedPreferences("updates", Context.MODE_PRIVATE).edit().remove("last_update").commit();
+						getActivity().startService(new Intent(getActivity(), NewsUpdaterService.class));
+						mSwipeRefreshLayout.setRefreshing(false);
+					}
+				}, 2000);
+			}
+		});
 
 		ParseQuery<NewsArticle> pQueryExists = ParseQuery.getQuery(NewsArticle.class);
 		pQueryExists.countInBackground(new CountCallback() {
 			@Override
 			public void done(int count, ParseException e) {
+				Context context = view.getContext();
 				if (e != null || count == 0) {
 					// No cached news yet. Force refresh now
-					getActivity().startService(new Intent(getActivity(), NewsUpdaterService.class));
-				}else{
+					context.startService(new Intent(context, NewsUpdaterService.class));
+				} else {
 					// There are some cached news. Check if the last
 					// update is too old (older than 6 hours) and refresh
-					// them now if so
-					long lastUpdateTimestamp = getActivity().getSharedPreferences("updates", Context.MODE_PRIVATE).getLong("last_update", -1);
-
-					long nextScheduledUpdate = lastUpdateTimestamp + TimeUnit.HOURS.toMillis(6);
-					if (nextScheduledUpdate < System.currentTimeMillis()) {
-						// Last update oldern than 6 hours, update now
-						getActivity().startService(new Intent(getActivity(), NewsUpdaterService.class));
+					if (App.isNewsNeedsUpdating(context)) {
+						context.startService(new Intent(context, NewsUpdaterService.class));
 					}
 				}
 			}
@@ -175,9 +193,8 @@ public class FragmentNews extends Fragment {
 						.commit();
 				return true;
 			case R.id.action_refresh:
-				Intent i = new Intent(getActivity(), NewsUpdaterService.class);
-				i.putExtra("force", true);
-				getActivity().startService(i);
+				getActivity().getSharedPreferences("updates", Context.MODE_PRIVATE).edit().remove("last_update").commit();
+				getActivity().startService(new Intent(getActivity(), NewsUpdaterService.class));
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

@@ -23,17 +23,18 @@
             android:scaleType="centerCrop"/>
 
         <LinearLayout
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
+            <com.hasmobi.bgnovini.AutoResizeTextView
                 android:id="@+id/tvTitle"
                 style="@style/newsArticleTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:gravity="center"
+                android:ellipsize="end"
                 android:minHeight="150dp"
                 android:text="Title"/>
 
@@ -46,8 +47,35 @@
                 android:ellipsize="end"
                 android:gravity="center"
                 android:maxLines="5"
-                android:minHeight="200dp"
                 android:text="Description"/>
+
+            <RelativeLayout
+                android:alpha="0.5"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp">
+
+                <TextView
+                    android:textColor="#fff"
+                    android:id="@+id/tvDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="5dp"
+                    android:text="Date"/>
+
+                <TextView
+                    android:textColor="#fff"
+                    android:id="@+id/tvSourceName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="5dp"
+                    android:text="Source"/>
+            </RelativeLayout>
         </LinearLayout>
 
     </RelativeLayout>

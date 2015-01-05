@@ -3,6 +3,7 @@ package com.hasmobi.bgnovini;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -17,11 +18,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.hasmobi.bgnovini.models.NewsArticle;
+import com.hasmobi.bgnovini.util.Typefaces;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,8 +71,15 @@ public class NewsAdapter extends BaseAdapter {
 			viewHolder.tvTitle = (TextView) rowView.findViewById(R.id.tvTitle);
 			//viewHolder.titleHolder = (RelativeLayout) rowView.findViewById(R.id.rlTitleHolder);
 			viewHolder.tvDescr = (TextView) rowView.findViewById(R.id.tvDescription);
+			viewHolder.tvDate = (TextView) rowView.findViewById(R.id.tvDate);
+			viewHolder.tvSourceName = (TextView) rowView.findViewById(R.id.tvSourceName);
 			viewHolder.image = (ImageView) rowView.findViewById(R.id.iv);
 			viewHolder.fullWrapper = (RelativeLayout) rowView.findViewById(R.id.rlHolder);
+
+			Typeface typefaceTitle = Typefaces.get(context, "playfairdisplay.ttf");
+			Typeface typefaceBody = Typefaces.get(context, "opensans-regular.ttf");
+			viewHolder.tvTitle.setTypeface(typefaceTitle);
+			viewHolder.tvDescr.setTypeface(typefaceBody);
 			rowView.setTag(viewHolder);
 		}
 
@@ -74,6 +87,21 @@ public class NewsAdapter extends BaseAdapter {
 
 		holder.tvTitle.setText(item.getTitle());
 		holder.tvDescr.setText(item.getDescription());
+
+		if (!item.getSource().isDataAvailable()) {
+			Log.d(getClass().toString(), "Fetching local source");
+			item.getSource().fetchFromLocalDatastoreInBackground(new GetCallback<ParseObject>() {
+				@Override
+				public void done(ParseObject parseObject, ParseException e) {
+					holder.tvSourceName.setText(item.getSource().getName());
+				}
+			});
+		} else {
+			holder.tvSourceName.setText(item.getSource().getName());
+		}
+
+		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+		holder.tvDate.setText(df.format(item.getPubDate()));
 
 		if (item.getThumbnailUrl() != null) {
 			if (item.getThumbnailUrl().equals("false")) {
@@ -107,6 +135,8 @@ public class NewsAdapter extends BaseAdapter {
 						holder.image.setVisibility(View.VISIBLE);
 						holder.image.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
 						holder.image.setImageBitmap(loadedImage);
+
+						holder.tvTitle.setHeight(loadedImage.getHeight());
 					}
 
 				});
@@ -148,7 +178,7 @@ public class NewsAdapter extends BaseAdapter {
 	}
 
 	static class ViewHolder {
-		public TextView tvTitle, tvDescr;
+		public TextView tvTitle, tvDescr, tvSourceName, tvDate;
 		public ImageView image;
 		public RelativeLayout fullWrapper;
 		public RelativeLayout titleHolder;

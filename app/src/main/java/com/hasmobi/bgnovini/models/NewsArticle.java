@@ -45,6 +45,9 @@ public class NewsArticle extends ParseObject {
 	public void setPubDate(Date pubDate) {
 		put("date", pubDate);
 	}
+	public Date getPubDate(){
+		return getDate("date");
+	}
 
 	public void setContent(String content) {
 		put("content", content);

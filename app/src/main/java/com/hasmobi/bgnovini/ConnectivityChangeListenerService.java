@@ -9,21 +9,16 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.IBinder;
 
-import java.util.concurrent.TimeUnit;
+import com.hasmobi.bgnovini.util.App;
 
 public class ConnectivityChangeListenerService extends Service {
 
 	final BroadcastReceiver brConnectivityChanged = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if(isNetworkAvailable(context)){
-				long lastUpdateTimestamp = context.getSharedPreferences("updates", Context.MODE_PRIVATE).getLong("last_update", -1);
-
-				long nextScheduledUpdate = lastUpdateTimestamp + TimeUnit.HOURS.toMillis(6);
-				if (nextScheduledUpdate < System.currentTimeMillis()) {
-					// Last update older than 6 hours, update now
-					context.startService(new Intent(context, NewsUpdaterService.class));
-				}
+			if (App.isNetworkAvailable(context) && App.isNewsNeedsUpdating(context)) {
+				// Last update older than 6 hours, update now
+				context.startService(new Intent(context, NewsUpdaterService.class));
 			}
 		}
 	};
@@ -37,9 +32,8 @@ public class ConnectivityChangeListenerService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if(receiverRegistered){
+		if (receiverRegistered) {
 			unregisterReceiver(brConnectivityChanged);
-			receiverRegistered = false;
 		}
 
 		registerReceiver(brConnectivityChanged, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
@@ -50,17 +44,12 @@ public class ConnectivityChangeListenerService extends Service {
 
 	@Override
 	public void onDestroy() {
-		if(receiverRegistered){
+		if (receiverRegistered) {
 			unregisterReceiver(brConnectivityChanged);
 			receiverRegistered = false;
 		}
 		super.onDestroy();
 	}
 
-	private boolean isNetworkAvailable(Context context) {
-		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo netInfo = cm.getActiveNetworkInfo();
-		//should check null because in air plan mode it will be null
-		return (netInfo != null && netInfo.isConnected());
-	}
+
 }
