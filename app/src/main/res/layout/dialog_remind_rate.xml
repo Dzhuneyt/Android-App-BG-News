@@ -9,7 +9,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:gravity="center"
-        android:text="@string/please_rate"/>
+        android:text="@string/please_rate"
+        android:textSize="30dp"/>
 
     <Button
         android:id="@+id/bRate"
@@ -17,6 +18,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="20dp"
+        android:drawableStart="@drawable/ic_action_good"
+        android:drawableLeft="@drawable/ic_action_good"
         android:gravity="center"
         android:text="@string/open_google_play"/>
 </LinearLayout>

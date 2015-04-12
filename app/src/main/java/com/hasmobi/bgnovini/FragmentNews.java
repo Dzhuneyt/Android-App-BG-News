@@ -22,8 +22,6 @@ import android.widget.Toast;
 
 import com.hasmobi.bgnovini.models.NewsArticle;
 import com.hasmobi.bgnovini.util.App;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 import com.parse.CountCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -35,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 public class FragmentNews extends Fragment {
 
-	private SwipeRefreshLayout mSwipeRefreshLayout;
+	Context context;
 
 	private BroadcastReceiver brRefreshNewsFromCache = new BroadcastReceiver() {
 		@Override
@@ -78,8 +76,9 @@ public class FragmentNews extends Fragment {
 	public void onResume() {
 		super.onResume();
 
-		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(brRefreshNewsFromCache, new IntentFilter(NewsUpdaterService.BROADCAST_NEWS_UPDATED));
+		context = getActivity().getBaseContext();
 
+		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(brRefreshNewsFromCache, new IntentFilter(NewsUpdaterService.BROADCAST_NEWS_UPDATED));
 		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(brRedrawThumbnails, new IntentFilter(NewsArticleThumbnailFinder.BROADCAST_THUMBNAIL_DOWNLOADED));
 	}
 
@@ -100,17 +99,18 @@ public class FragmentNews extends Fragment {
 	public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-		mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.srl);
+		context = getActivity().getBaseContext();
 
+		final SwipeRefreshLayout mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.srl);
 		mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			@Override
 			public void onRefresh() {
-				Toast.makeText(getActivity(), getResources().getString(R.string.updating_news), Toast.LENGTH_SHORT).show();
+				Toast.makeText(context, getResources().getString(R.string.updating_news), Toast.LENGTH_SHORT).show();
 				new Handler().postDelayed(new Runnable() {
 					@Override
 					public void run() {
-						getActivity().getSharedPreferences("updates", Context.MODE_PRIVATE).edit().remove("last_update").commit();
-						getActivity().startService(new Intent(getActivity(), NewsUpdaterService.class));
+						context.getSharedPreferences("updates", Context.MODE_PRIVATE).edit().remove("last_update").commit();
+						context.startService(new Intent(context, NewsUpdaterService.class));
 						mSwipeRefreshLayout.setRefreshing(false);
 					}
 				}, 2000);
@@ -121,7 +121,6 @@ public class FragmentNews extends Fragment {
 		pQueryExists.countInBackground(new CountCallback() {
 			@Override
 			public void done(int count, ParseException e) {
-				Context context = view.getContext();
 				if (e != null || count == 0) {
 					// No cached news yet. Force refresh now
 					context.startService(new Intent(context, NewsUpdaterService.class));
@@ -144,7 +143,7 @@ public class FragmentNews extends Fragment {
 		qNews.addDescendingOrder("date"); // newest first
 		qNews.findInBackground(new FindCallback<NewsArticle>() {
 			@Override
-			public void done(List<NewsArticle> newsArticles, ParseException e) {
+			public void done(List<NewsArticle> localNewsArticles, ParseException e) {
 				if (e != null) {
 					e.printStackTrace();
 					return;
@@ -155,7 +154,7 @@ public class FragmentNews extends Fragment {
 					return;
 				}
 
-				NewsAdapter adapter = new NewsAdapter(getActivity().getBaseContext(), newsArticles);
+				NewsAdapter adapter = new NewsAdapter(context, localNewsArticles);
 
 				final ListView lv = (ListView) getView().findViewById(R.id.lv);
 
@@ -168,18 +167,12 @@ public class FragmentNews extends Fragment {
 
 				// restore index and position
 				lv.setSelectionFromTop(index, top);
-
-				boolean pauseOnScroll = false; // or true
-				boolean pauseOnFling = true; // or false
-				PauseOnScrollListener listener = new PauseOnScrollListener(ImageLoader.getInstance(), pauseOnScroll, pauseOnFling);
-				lv.setOnScrollListener(listener);
 			}
 		});
 	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		// TODO Add your menu entries here
 		inflater.inflate(R.menu.menu_news_feed, menu);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
@@ -193,8 +186,8 @@ public class FragmentNews extends Fragment {
 						.commit();
 				return true;
 			case R.id.action_refresh:
-				getActivity().getSharedPreferences("updates", Context.MODE_PRIVATE).edit().remove("last_update").commit();
-				getActivity().startService(new Intent(getActivity(), NewsUpdaterService.class));
+				context.getSharedPreferences("updates", Context.MODE_PRIVATE).edit().remove("last_update").commit();
+				context.startService(new Intent(context, NewsUpdaterService.class));
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

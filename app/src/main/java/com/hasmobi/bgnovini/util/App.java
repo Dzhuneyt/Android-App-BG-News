@@ -6,12 +6,10 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
 import com.hasmobi.bgnovini.models.FavoriteSource;
 import com.hasmobi.bgnovini.models.NewsArticle;
 import com.hasmobi.bgnovini.models.Source;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseInstallation;
@@ -45,16 +43,7 @@ public class App extends Application {
 		ParseACL defaultACL = new ParseACL();
 		ParseACL.setDefaultACL(defaultACL, true);
 
-		// Create default options which will be used for every
-		//  displayImage(...) call if no options will be passed to this method
-		DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder().cacheInMemory(true).cacheOnDisk(true).build();
-
-		// Create global configuration and initialize ImageLoader with this config
-		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
-				.diskCacheSize(20000000) // 20mb
-				.memoryCacheSizePercentage(15)
-				.defaultDisplayImageOptions(defaultOptions).build();
-		ImageLoader.getInstance().init(config);
+		Fresco.initialize(this);
 
 	}
 

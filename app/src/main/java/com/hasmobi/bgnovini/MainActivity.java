@@ -18,8 +18,6 @@ import android.view.ViewGroup;
 
 import com.hasmobi.bgnovini.models.FavoriteSource;
 import com.hasmobi.bgnovini.util.App;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.parse.FindCallback;
 import com.parse.ParseAnalytics;
 import com.parse.ParseException;

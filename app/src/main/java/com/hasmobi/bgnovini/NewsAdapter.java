@@ -1,5 +1,6 @@
 package com.hasmobi.bgnovini;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -7,6 +8,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,16 +19,14 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.hasmobi.bgnovini.models.NewsArticle;
 import com.hasmobi.bgnovini.util.Typefaces;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 
+import java.net.URL;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +73,7 @@ public class NewsAdapter extends BaseAdapter {
 			viewHolder.tvDescr = (TextView) rowView.findViewById(R.id.tvDescription);
 			viewHolder.tvDate = (TextView) rowView.findViewById(R.id.tvDate);
 			viewHolder.tvSourceName = (TextView) rowView.findViewById(R.id.tvSourceName);
-			viewHolder.image = (ImageView) rowView.findViewById(R.id.iv);
+			viewHolder.image = (SimpleDraweeView) rowView.findViewById(R.id.iv);
 			viewHolder.fullWrapper = (RelativeLayout) rowView.findViewById(R.id.rlHolder);
 
 			Typeface typefaceTitle = Typefaces.get(context, "playfairdisplay.ttf");
@@ -100,8 +100,15 @@ public class NewsAdapter extends BaseAdapter {
 			holder.tvSourceName.setText(item.getSource().getName());
 		}
 
-		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-		holder.tvDate.setText(df.format(item.getPubDate()));
+		CharSequence relative;
+		if (item.getPubDate().getTime() > System.currentTimeMillis()) {
+			// Can not be in the future
+			relative = DateUtils.getRelativeTimeSpanString(System.currentTimeMillis(), System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
+		} else {
+			relative = DateUtils.getRelativeTimeSpanString(item.getPubDate().getTime(), System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
+		}
+
+		holder.tvDate.setText(relative);
 
 		if (item.getThumbnailUrl() != null) {
 			if (item.getThumbnailUrl().equals("false")) {
@@ -109,6 +116,10 @@ public class NewsAdapter extends BaseAdapter {
 				holder.image.setVisibility(View.GONE);
 			} else {
 				Log.d(getClass().getSimpleName(), "Loading thumbnail");
+				Uri thumbUri = Uri.parse(item.getThumbnailUrl());
+				holder.image.setImageURI(thumbUri);
+				holder.image.setVisibility(View.VISIBLE);
+				/*
 				ImageLoader.getInstance().loadImage(item.getThumbnailUrl(), new SimpleImageLoadingListener() {
 					@Override
 					public void onLoadingStarted(String imageUri, View view) {
@@ -139,20 +150,7 @@ public class NewsAdapter extends BaseAdapter {
 						holder.tvTitle.setHeight(loadedImage.getHeight());
 					}
 
-				});
-			/*
-			Picasso.with(context).load(item.getThumbnailUrl()).fit().into(holder.image, new Callback() {
-				@Override
-				public void onSuccess() {
-					holder.image.setVisibility(View.VISIBLE);
-					holder.image.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-				}
-
-				@Override
-				public void onError() {
-
-				}
-			});*/
+				});*/
 			}
 
 		} else {
@@ -168,9 +166,14 @@ public class NewsAdapter extends BaseAdapter {
 			@Override
 			public void onClick(View v) {
 				String link = item.getLink();
+				Intent i = new Intent(context, WebViewActivity.class);
+				i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				i.putExtra("url", link);
+				context.startActivity(i);
+				/*
 				Intent i = new Intent(Intent.ACTION_VIEW,
 						Uri.parse(link));
-				v.getContext().startActivity(i);
+				v.getContext().startActivity(i);*/
 			}
 		});
 
@@ -179,7 +182,7 @@ public class NewsAdapter extends BaseAdapter {
 
 	static class ViewHolder {
 		public TextView tvTitle, tvDescr, tvSourceName, tvDate;
-		public ImageView image;
+		public SimpleDraweeView image;
 		public RelativeLayout fullWrapper;
 		public RelativeLayout titleHolder;
 	}

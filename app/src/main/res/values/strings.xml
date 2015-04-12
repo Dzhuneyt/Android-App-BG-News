@@ -12,4 +12,5 @@
     <string name="open_google_play">Отвори Google Play</string>
     <string name="choose_any_source">Моля, изберете поне един източник</string>
     <string name="no_internet">Необходима е връзка с интернет.</string>
+    <string name="open_in_browser">Отвори в браузъра</string>
 </resources>
