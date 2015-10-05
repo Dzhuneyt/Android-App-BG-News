@@ -9,7 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -37,9 +37,7 @@ public class FragmentSources extends Fragment {
 	public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-		final Button bContinue = (Button) view.findViewById(R.id.bContinue);
-
-		final ListView listView = (ListView) view.findViewById(R.id.lv);
+		final ImageButton bContinue = (ImageButton) view.findViewById(R.id.bContinue);
 
 		bContinue.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -93,29 +91,31 @@ public class FragmentSources extends Fragment {
 			public void done(List<Source> sources, ParseException e) {
 				if (e != null) {
 					e.printStackTrace();
-					return;
 				}
 
-				if (sources.size() == 0) {
+				if (e != null || sources.size() == 0) {
+					// Some error occurred, try to get cached sources if present
 					qSources.fromLocalDatastore();
 					qSources.findInBackground(new FindCallback<Source>() {
 						@Override
-						public void done(List<Source> sources, ParseException e) {
-							Log.d(getClass().toString(), "Received " + sources.size());
-							SourcesAdapter adapter = new SourcesAdapter(getActivity().getBaseContext(), sources);
-
-							listView.setAdapter(adapter);
+						public void done(final List<Source> sources, ParseException e) {
+							Log.d(getClass().toString(), "Retrieved " + sources.size() + " cached sources");
+							setNewSources(sources);
 						}
 					});
 				} else {
-					Log.d(getClass().toString(), "Received " + sources.size());
-					SourcesAdapter adapter = new SourcesAdapter(view.getContext(), sources);
-
-					listView.setAdapter(adapter);
+					setNewSources(sources);
 				}
-
-
 			}
 		});
+	}
+
+	private void setNewSources(List<Source> sources) {
+		if (getView() == null) return;
+
+		final ListView listView = (ListView) getView().findViewById(R.id.lv);
+
+		final SourcesAdapter adapter = new SourcesAdapter(getActivity().getBaseContext(), sources);
+		listView.setAdapter(adapter);
 	}
 }

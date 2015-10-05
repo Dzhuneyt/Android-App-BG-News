@@ -7,7 +7,6 @@ import android.util.Log;
 
 import com.hasmobi.bgnovini.models.NewsArticle;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import org.jsoup.Jsoup;
@@ -16,7 +15,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * A simple class to scrape the perfect thumbnail for a given
@@ -39,29 +37,26 @@ public class NewsArticleThumbnailFinder extends IntentService {
 
 		Log.d(getClass().getSimpleName(), "Scraping thumbnail for " + link);
 
+		ParseQuery<NewsArticle> q = ParseQuery.getQuery(NewsArticle.class);
+		q.fromLocalDatastore();
+		q.whereEqualTo("link", link);
+
+		NewsArticle article = null;
+		try {
+			article = q.getFirst();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		if (article == null) {
+			return;
+		}
+
 		Document doc;
 		try {
 			doc = Jsoup.connect(link).userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10; rv:33.0) Gecko/20100101 Firefox/33.0").get();
 		} catch (IOException e) {
 			e.printStackTrace();
-			return;
-		}
-
-		ParseQuery<NewsArticle> q = ParseQuery.getQuery(NewsArticle.class);
-		q.fromLocalDatastore();
-		q.whereEqualTo("link", link);
-
-		List<NewsArticle> articles = null;
-
-
-		try {
-			articles = q.find();
-		} catch (ParseException e) {
-			e.printStackTrace();
-			return;
-		}
-
-		if (articles == null) {
 			return;
 		}
 
@@ -78,11 +73,8 @@ public class NewsArticleThumbnailFinder extends IntentService {
 
 					try {
 
-						for (NewsArticle singleArticle : articles) {
-							singleArticle.setThumbnailUrl(thumb);
-						}
-
-						ParseObject.pinAll(articles);
+						article.setThumbnailUrl(thumb);
+						article.pin();
 
 						LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(BROADCAST_THUMBNAIL_DOWNLOADED));
 
@@ -97,16 +89,12 @@ public class NewsArticleThumbnailFinder extends IntentService {
 
 		Log.e(getClass().getSimpleName(), "Can not find thumbnail for " + link);
 
-		for (NewsArticle singleArticle : articles) {
-			singleArticle.setThumbnailUrl("false");
-		}
-
+		article.setThumbnailUrl("false");
 		try {
-			ParseObject.pinAll(articles);
+			article.pin();
+			LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(BROADCAST_THUMBNAIL_DOWNLOADED));
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-
-		LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(BROADCAST_THUMBNAIL_DOWNLOADED));
 	}
 }

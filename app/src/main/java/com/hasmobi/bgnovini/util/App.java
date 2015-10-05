@@ -2,11 +2,12 @@ package com.hasmobi.bgnovini.util;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.util.Log;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
+import com.hasmobi.bgnovini.R;
 import com.hasmobi.bgnovini.models.FavoriteSource;
 import com.hasmobi.bgnovini.models.NewsArticle;
 import com.hasmobi.bgnovini.models.Source;
@@ -33,7 +34,8 @@ public class App extends Application {
 		ParseObject.registerSubclass(Source.class);
 		ParseObject.registerSubclass(NewsArticle.class);
 
-		Parse.initialize(getApplicationContext(), "u2GANc30nVAXDWrRN2wVb1AvnfhtGi99aX4ZKbYC", "HlOCcz5I5EFhb0pfILHGoHuT9IOj4m2kHRnLxe9s");
+		Resources res = getResources();
+		Parse.initialize(getApplicationContext(), res.getString(R.string.key1), res.getString(R.string.key2));
 
 		ParseInstallation.getCurrentInstallation().saveInBackground();
 

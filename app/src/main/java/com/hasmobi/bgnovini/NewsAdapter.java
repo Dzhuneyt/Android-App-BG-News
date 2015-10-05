@@ -1,12 +1,8 @@
 package com.hasmobi.bgnovini;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -14,8 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -26,8 +20,6 @@ import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 
-import java.net.URL;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,38 +111,6 @@ public class NewsAdapter extends BaseAdapter {
 				Uri thumbUri = Uri.parse(item.getThumbnailUrl());
 				holder.image.setImageURI(thumbUri);
 				holder.image.setVisibility(View.VISIBLE);
-				/*
-				ImageLoader.getInstance().loadImage(item.getThumbnailUrl(), new SimpleImageLoadingListener() {
-					@Override
-					public void onLoadingStarted(String imageUri, View view) {
-						super.onLoadingStarted(imageUri, view);
-						Log.d(getClass().getSimpleName(), "onLoadingStarted");
-					}
-
-					@Override
-					public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-						super.onLoadingFailed(imageUri, view, failReason);
-						Log.d(getClass().getSimpleName(), "onLoadingFailed");
-					}
-
-					@Override
-					public void onLoadingCancelled(String imageUri, View view) {
-						super.onLoadingCancelled(imageUri, view);
-						Log.d(getClass().getSimpleName(), "onLoadingCancelled");
-					}
-
-					@Override
-					public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-						// Do whatever you want with Bitmap
-						Log.d(getClass().getSimpleName(), "onLoadingComplete");
-						holder.image.setVisibility(View.VISIBLE);
-						holder.image.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
-						holder.image.setImageBitmap(loadedImage);
-
-						holder.tvTitle.setHeight(loadedImage.getHeight());
-					}
-
-				});*/
 			}
 
 		} else {
@@ -170,10 +130,6 @@ public class NewsAdapter extends BaseAdapter {
 				i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				i.putExtra("url", link);
 				context.startActivity(i);
-				/*
-				Intent i = new Intent(Intent.ACTION_VIEW,
-						Uri.parse(link));
-				v.getContext().startActivity(i);*/
 			}
 		});
 
