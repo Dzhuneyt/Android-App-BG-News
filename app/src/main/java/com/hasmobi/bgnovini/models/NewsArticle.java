@@ -2,12 +2,18 @@ package com.hasmobi.bgnovini.models;
 
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import java.util.Date;
 
 @ParseClassName("NewsArticle")
 public class NewsArticle extends ParseObject {
+
 	public NewsArticle() {
+	}
+
+	public static ParseQuery<NewsArticle> getQuery() {
+		return ParseQuery.getQuery(NewsArticle.class);
 	}
 
 	public String getTitle() {
@@ -45,7 +51,8 @@ public class NewsArticle extends ParseObject {
 	public void setPubDate(Date pubDate) {
 		put("date", pubDate);
 	}
-	public Date getPubDate(){
+
+	public Date getPubDate() {
 		return getDate("date");
 	}
 
@@ -63,5 +70,13 @@ public class NewsArticle extends ParseObject {
 
 	public String getThumbnailUrl() {
 		return getString("thumb");
+	}
+
+	public void setRead(boolean read) {
+		put("read", read);
+	}
+
+	public boolean getRead() {
+		return getBoolean("read");
 	}
 }

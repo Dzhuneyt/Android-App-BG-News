@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Българските Новини</string>
+    <string name="action_settings">Настройки</string>
+    <string name="from">От:</string>
+    <string name="updating_news">Обновяване на новините</string>
+</resources>

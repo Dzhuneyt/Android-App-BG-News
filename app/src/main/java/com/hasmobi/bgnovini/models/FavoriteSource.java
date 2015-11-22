@@ -2,6 +2,7 @@ package com.hasmobi.bgnovini.models;
 
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 @ParseClassName("FavoriteSource")
@@ -24,5 +25,9 @@ public class FavoriteSource extends ParseObject {
 
 	public Source getSource() {
 		return (Source) getParseObject("source");
+	}
+
+	public static ParseQuery<FavoriteSource> getQuery() {
+		return ParseQuery.getQuery(FavoriteSource.class);
 	}
 }

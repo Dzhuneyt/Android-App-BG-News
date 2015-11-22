@@ -1,96 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    android:id="@+id/rlHolder"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="7dp">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:card_view="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
 
     <android.support.v7.widget.CardView
         android:id="@+id/card_view"
-        xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
         card_view:cardCornerRadius="4dp">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <LinearLayout
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/ivThumbnail"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/tvTitle"
+                style="@style/Base.TextAppearance.AppCompat.Large"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#1976D2"
-                android:orientation="horizontal">
-
-                <com.facebook.drawee.view.SimpleDraweeView
-                    android:id="@+id/iv"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <com.hasmobi.bgnovini.AutoResizeTextView
-                        android:id="@+id/tvTitle"
-                        style="@style/newsArticleTitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="100dp"
-                        android:layout_gravity="center"
-                        android:ellipsize="end"
-                        android:text="Title"/>
-
-                </LinearLayout>
-            </LinearLayout>
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                android:text="Title"/>
 
             <TextView
                 android:id="@+id/tvDescription"
-                style="@style/newsArticleBody"
+                style="@style/Base.TextAppearance.AppCompat.Widget.ActionBar.Subtitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_margin="10dp"
                 android:ellipsize="end"
-                android:gravity="center"
-                android:maxLines="5"
+                android:maxLines="4"
                 android:text="Description"/>
+
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:layout_marginTop="10dp"
-                android:alpha="0.5">
+                android:background="@color/blue_500"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp">
 
                 <TextView
                     android:id="@+id/tvDate"
+                    style="@style/Base.TextAppearance.AppCompat.Body2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
+                    android:layout_marginBottom="3dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginStart="10dp"
                     android:text="Date"
-                    android:textColor="#42A5F5"/>
+                    android:textColor="@color/blue_50"/>
 
                 <TextView
-                    android:id="@+id/tvSourceName"
+                    android:id="@+id/tvSource"
+                    style="@style/Base.TextAppearance.AppCompat.Body2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/tvDate"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginStart="10dp"
+                    android:text="Source"
+                    android:textColor="@color/blue_50"
+                    />
+
+                <ImageView
+                    android:id="@+id/ivExpandArticle"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="10dp"
+                    android:layout_toLeftOf="@+id/ivCheck"
+                    android:src="@drawable/ic_open_with_white_48dp"/>
+
+                <ImageView
+                    android:id="@+id/ivShareArticle"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="10dp"
+                    android:layout_toLeftOf="@+id/ivExpandArticle"
+                    android:src="@drawable/ic_share_white_48dp"/>
+
+                <ImageView
+                    android:id="@+id/ivCheck"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:text="Source"
-                    android:textColor="#42A5F5"/>
+                    android:layout_marginRight="10dp"
+                    android:src="@drawable/ic_delete_white_48dp"/>
             </RelativeLayout>
-
 
         </LinearLayout>
 
     </android.support.v7.widget.CardView>
-</RelativeLayout>
+</LinearLayout>
